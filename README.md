@@ -1,4 +1,4 @@
-# WordPress-Workflow-With-Gulp-and-Browsersync
+# WordPress-Workflow-With-Gulp-Gulp-imagemin-and-Browsersync
 
 Considering you have a wordpress instalation on you computer... 
 

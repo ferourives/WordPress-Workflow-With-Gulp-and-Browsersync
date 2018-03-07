@@ -11,9 +11,9 @@ The first thing you should do is install [Node](https://nodejs.org) and [Gulp](h
 * Open the terminal on your wp theme directory `$ cd .../wp-content/theme/your-theme`
 * `$ npm init` to creat a packaje.json file
 
-### Install gulp, gulp sass and browsersync
+### Install gulp, gulp sass, browsersync and gulp-imagemin
 
-* `$ npm install gulp gulp-sass browser-sync --save-dev`
+* `$ npm install gulp gulp-sass browser-sync gulp-imagemin --save-dev`
 
 Note that you have inside your theme folder a node_modules folder
 
@@ -29,6 +29,7 @@ var gulp = require('gulp'),
     browserSync = require('browser-sync'),
     sass = require('gulp-sass');
     
+    
 ```
 
 ##### Configure o BrowserSync.
@@ -36,7 +37,8 @@ var gulp = require('gulp'),
  gulp.task('browser-sync', function () {
       var files = [
           './style.css',
-          './*.php'
+          './*.php',
+          './js/*.js'
       ];
 
       //Iniciando BrowserSync com o PHP
@@ -44,6 +46,7 @@ var gulp = require('gulp'),
           proxy: "http://localhost:8888/"
       });
   });
+  
 ```
 ##### Configure sass task to run when specified .scss file change
 ##### Browsersync will also reload browsers
@@ -57,7 +60,20 @@ var gulp = require('gulp'),
             .pipe(browserSync.stream())
     });
  ```
+ 
+ ##### Otimizando images
+ ```
+    gulp.task('img', function() {
+        gulp.src('assets/images/*.{png,jpg,gif}')
+            .pipe(imagemin({
 
+                optimizationLevel: 7,
+                progressive: true
+
+            }))
+            .pipe(gulp.dest('img'))
+    });
+ ```
 ##### Creat a default task that can be called using 'gulp.
 ##### The task will process sass, run browser-sync and start watching for changes.
 ```

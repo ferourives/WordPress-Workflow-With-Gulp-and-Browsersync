@@ -83,5 +83,5 @@ var gulp = require('gulp'),
 
 ```
 
-Now, open yor terminal, make sure it's the root folder and tipe `$ gulp ` 
+Now, open yor terminal, make sure it's the root folder and type `$ gulp ` 
 

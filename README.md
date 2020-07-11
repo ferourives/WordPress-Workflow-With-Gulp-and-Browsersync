@@ -23,7 +23,7 @@ The next step is creat a `gulpfile.js` and inside your gulpfile.js is where all 
 
 open gulpfile.js.
 
-##### Include de necessary modules
+##### Include the necessary modules
 ```
 var gulp = require('gulp'),
     browserSync = require('browser-sync'),
@@ -32,7 +32,7 @@ var gulp = require('gulp'),
     
 ```
 
-##### Configure o BrowserSync.
+##### Configure the BrowserSync.
 ```
  gulp.task('browser-sync', function () {
       var files = [
@@ -61,7 +61,7 @@ var gulp = require('gulp'),
     });
  ```
  
- ##### Otimizando images
+ ##### Optimizing images
  ```
     gulp.task('img', function() {
         gulp.src('assets/images/*.{png,jpg,gif}')

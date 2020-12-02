@@ -1,4 +1,5 @@
-# WordPress-Workflow-With-Gulp-Gulp-imagemin-and-Browsersync
+after updated to Gulp 4 I needed to update my gulpfile.js
+# WordPress Workflow With Gulp-4, Gulp-sass, Gulp-watch, Gulp-minify and Browsersync
 
 Considering you have a wordpress instalation on you computer... 
 
@@ -11,9 +12,9 @@ The first thing you should do is install [Node](https://nodejs.org) and [Gulp](h
 * Open the terminal on your wp theme directory `$ cd .../wp-content/theme/your-theme`
 * `$ npm init` to creat a packaje.json file
 
-### Install gulp, gulp sass, browsersync and gulp-imagemin
+### Install gulp, gulp sass, gulp-watch, gulp-minify and browsersync
 
-* `$ npm install gulp gulp-sass browser-sync gulp-imagemin --save-dev`
+* `$ npm install gulp gulp-watch gulp-sass browser-sync gulp-minify --save-dev`
 
 Note that you have inside your theme folder a node_modules folder
 
@@ -25,61 +26,96 @@ open gulpfile.js.
 
 ##### Include the necessary modules
 ```
-var gulp = require('gulp'),
-    browserSync = require('browser-sync'),
-    sass = require('gulp-sass');
+var gulp = require( 'gulp' ),
+    watch = require( 'gulp-watch' ),
+    sass = require( 'gulp-sass' ),
+    minify = require('gulp-minify'),
+    browserSync = require('browser-sync').create()
+    
+    
+```
+
+##### create variables to watch
+```
+// Sass files to watch
+var cssFiles = [
+    './sass/**/*.scss'
+];
+
+// Js files to watch
+var jsFiles = [
+    './js/*.js'
+];
     
     
 ```
 
 ##### Configure the BrowserSync.
 ```
- gulp.task('browser-sync', function () {
-      var files = [
-          './style.css',
-          './*.php',
-          './js/*.js'
-      ];
+// automatically reloads the page when files changed
+var browserSyncWatchFiles = [
+    './*.css',
+    './js/*.js',
+    './**/*.php'
+];
 
-      //Iniciando BrowserSync com o PHP
-      browserSync.init(files, {
-          proxy: "http://localhost:8888/"
-      });
-  });
+// see: https://www.browsersync.io/docs/options/
+var browserSyncOptions = {
+    watchTask: true,
+    proxy: "http://localhost:8080/" 
+}
   
 ```
 ##### Configure sass task to run when specified .scss file change
 ##### Browsersync will also reload browsers
  ```
-    gulp.task('sass', function () {
-        return gulp.src('sass/*.scss')
-            .pipe(sass({
-                    'outputStyle' : 'compressed'
-                }))
-            .pipe(gulp.dest('./'))
-            .pipe(browserSync.stream())
+   gulp.task('sass', function() {
+    return gulp.src('./sass/style.scss')
+        .pipe(sass({
+            errLogToConsole: true,
+            precision: 8,
+            noCache: true,
+        }).on('error', sass.logError))
+        .pipe(gulp.dest('.'))
+        .pipe(sass({ outputStyle:'compressed'}).on('error', sass.logError))
+        .pipe(gulp.dest('.'))
+        .pipe(browserSync.reload({stream: true}))
     });
  ```
  
- ##### Optimizing images
+ ##### Js - Creates a regular and minified .js file in root
  ```
-    gulp.task('img', function() {
-        gulp.src('assets/images/*.{png,jpg,gif}')
-            .pipe(imagemin({
-
-                optimizationLevel: 7,
-                progressive: true
-
-            }))
-            .pipe(gulp.dest('img'))
+gulp.task('min-js', function() {
+return gulp.src('js/scripts.js')
+    .pipe(minify({
+        ext: {
+            min: '.min.js'
+        },
+        ignoreFiles: ['.min.js']
+    }))
+    .pipe(gulp.dest('js'))
+});
+ ```
+ 
+ ##### Starts browser-sync task for starting the server.
+ ```
+    gulp.task('browser-sync', function() {
+        browserSync.init(browserSyncWatchFiles, browserSyncOptions);
     });
  ```
-##### Creat a default task that can be called using 'gulp.
+ 
+##### Start the livereload server and watch files for change
 ##### The task will process sass, run browser-sync and start watching for changes.
 ```
-  gulp.task('default', ['sass', 'browser-sync'], function () {
-      gulp.watch("sass/**/*.scss", ['sass']);
-  })
+  gulp.task( 'watch', function() {
+
+    gulp.watch( cssFiles, gulp.parallel('sass') );
+    gulp.watch( jsFiles, gulp.parallel('min-js') );
+
+});
+
+
+gulp.task( 'default', gulp.parallel('watch', 'browser-sync'));
 
 ```
 

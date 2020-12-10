@@ -1,5 +1,5 @@
 after updated to Gulp 4 I needed to update my gulpfile.js
-# WordPress Workflow With Gulp-4, Gulp-sass, Gulp-watch, Gulp-minify and Browsersync
+# WordPress Workflow With Gulp-4, Gulp-sass, Gulp-watch, Gulp-concat and Browsersync
 
 Considering you have a wordpress instalation on you computer... 
 
@@ -12,9 +12,9 @@ The first thing you should do is install [Node](https://nodejs.org) and [Gulp](h
 * Open the terminal on your wp theme directory `$ cd .../wp-content/theme/your-theme`
 * `$ npm init` to creat a packaje.json file
 
-### Install gulp, gulp sass, gulp-watch, gulp-minify and browsersync
+### Install gulp extentions and browsersync
 
-* `$ npm install gulp gulp-watch gulp-sass browser-sync gulp-minify --save-dev`
+* `$ npm install gulp gulp-watch gulp-sass gulp-concat gulp-uglify browser-sync --save-dev`
 
 Note that you have inside your theme folder a node_modules folder
 
@@ -29,7 +29,8 @@ open gulpfile.js.
 var gulp = require( 'gulp' ),
     watch = require( 'gulp-watch' ),
     sass = require( 'gulp-sass' ),
-    minify = require('gulp-minify'),
+    concat = require('gulp-concat'),
+    uglify = require('gulp-uglify'),
     browserSync = require('browser-sync').create()
     
     
@@ -44,7 +45,7 @@ var cssFiles = [
 
 // Js files to watch
 var jsFiles = [
-    './js/*.js'
+    './js/scripts.js'
 ];
     
     
@@ -85,15 +86,14 @@ var browserSyncOptions = {
  
  ##### Js - Creates a regular and minified .js file in root
  ```
-gulp.task('min-js', function() {
-return gulp.src('js/scripts.js')
-    .pipe(minify({
-        ext: {
-            min: '.min.js'
-        },
-        ignoreFiles: ['.min.js']
-    }))
-    .pipe(gulp.dest('js'))
+gulp.task('compress', function () {
+    return gulp.src([
+        "./js/*.js"
+    ])
+        .pipe(concat('scripts.min.js'))
+        .pipe(uglify())
+        .pipe(gulp.dest('./js'))
+        .pipe(browserSync.reload({stream: true}))
 });
  ```
  
@@ -110,7 +110,7 @@ return gulp.src('js/scripts.js')
   gulp.task( 'watch', function() {
 
     gulp.watch( cssFiles, gulp.parallel('sass') );
-    gulp.watch( jsFiles, gulp.parallel('min-js') );
+    gulp.watch( jsFiles, gulp.parallel('compress') );
 
 });
 

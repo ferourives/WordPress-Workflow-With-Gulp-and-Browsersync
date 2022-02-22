@@ -1,5 +1,5 @@
 after updated to Gulp 4 I needed to update my gulpfile.js
-# WordPress Workflow With Gulp-4, Gulp-sass, Gulp-watch, Gulp-concat and Browsersync
+# WordPress Workflow With Gulp-4, Gulp-sass, Gulp-watch, Gulp-concat and Browsersync + Tailwindcss
 
 Considering you have a wordpress instalation on you computer... 
 
@@ -14,9 +14,34 @@ The first thing you should do is install [Node](https://nodejs.org) and [Gulp](h
 
 ### Install gulp extentions and browsersync
 
-* `$ npm install gulp gulp-watch gulp-sass gulp-concat gulp-uglify browser-sync --save-dev`
+* `$ npm install gulp gulp-watch gulp-sass gulp-concat gulp-uglify browser-sync gulp-postcss --save-dev`
 
 Note that you have inside your theme folder a node_modules folder
+
+### To write gulp in ES6 code, install babel.
+
+* `$ npm i @babel/core @babel/preset-env @babel/register`
+
+ou
+
+* `$ npm i @babel/{core,preset-env,register}`
+
+###  Install tailwindcss
+
+* `$ npm i tailwindcss`
+
+* `$ npx tailwind init`
+
+### tailwindcss code
+
+import to your style.scss
+
+```
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
 
 The next step is creat a `gulpfile.js` and inside your gulpfile.js is where all the magic happens.
 
@@ -26,12 +51,16 @@ open gulpfile.js.
 
 ##### Include the necessary modules
 ```
-var gulp = require( 'gulp' ),
-    watch = require( 'gulp-watch' ),
-    sass = require( 'gulp-sass' ),
-    concat = require('gulp-concat'),
-    uglify = require('gulp-uglify'),
-    browserSync = require('browser-sync').create()
+var gulp = require("gulp"),
+  watch = require("gulp-watch"),
+  sass = require("gulp-sass")(require("sass")),
+  autoprefixer = require("autoprefixer"),
+  postcss = require("gulp-postcss"),
+  tailwindcss = require("tailwindcss"),
+  concat = require("gulp-concat"),
+  uglifyes = require("gulp-uglify-es"), //for es6 to work
+  uglify = require("gulp-uglify"),
+  browserSync = require("browser-sync").create();
     
     
 ```
@@ -70,18 +99,22 @@ var browserSyncOptions = {
 ##### Configure sass task to run when specified .scss file change
 ##### Browsersync will also reload browsers
  ```
-   gulp.task('sass', function() {
-    return gulp.src('./sass/style.scss')
-        .pipe(sass({
-            errLogToConsole: true,
-            precision: 8,
-            noCache: true,
-        }).on('error', sass.logError))
-        .pipe(gulp.dest('.'))
-        .pipe(sass({ outputStyle:'compressed'}).on('error', sass.logError))
-        .pipe(gulp.dest('.'))
-        .pipe(browserSync.reload({stream: true}))
-    });
+  gulp.task("sass", function () {
+  return gulp
+    .src(["./sass/style.scss"])
+    .pipe(
+      sass({
+        errLogToConsole: true,
+        precision: 8,
+        noCache: true,
+      }).on("error", sass.logError)
+    )
+    .pipe(postcss([tailwindcss, autoprefixer]))
+    .pipe(gulp.dest("."))
+    .pipe(sass({ outputStyle: "compressed" }).on("error", sass.logError))
+    .pipe(gulp.dest("."))
+    .pipe(browserSync.reload({ stream: true }));
+});
  ```
  
  ##### Js - Creates a regular and minified .js file in root
